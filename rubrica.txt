@@ -1,0 +1,54 @@
+RÚBRICA D'ANÀLISI
+Sistema de detecció de biaix i desinformació en textos polítics dirigits a joves
+ 
+Instrucció general per al sistema:
+Per a cada dimensió (biaix ideològic, llenguatge emocional, desinformació), el sistema ha
+d'indicar: (a) la INTENSITAT amb què apareix, (b) el TIPUS o indicadors detectats, (c) el
+FRAGMENT literal del text on es veu, i (d) una EXPLICACIÓ breu. El fragment ha de ser una
+còpia EXACTA de paraules que apareixen al text; no s'ha de parafrasejar ni inventar.
+ 
+Escala d'INTENSITAT (comuna a les tres dimensions):
+  nul·la   = cap indicador present; el text és neutre en aquesta dimensió.
+  lleu     = 1 indicador present, i de manera puntual o poc marcada.
+  moderada = 2 indicadors presents, o 1 de molt marcat de forma repetida.
+  alta     = 3 o més indicadors presents, o llenguatge clarament i insistentment marcat.
+ 
+------------------------------------------------------------
+1. BIAIX IDEOLÒGIC
+Definició: el text presenta la realitat afavorint una postura política i desafavorint-ne
+una altra, en lloc d'exposar els fets de manera equilibrada.
+ 
+Indicadors:
+- Adjectius valoratius cap a un partit o polític (ex.: "corrupte", "salvador", "traïdor").
+- Presentació d'un sol punt de vista, sense mencionar postures contràries.
+- Ús de "nosaltres" vs "ells" per crear bàndols enfrontats.
+- Selecció parcial de dades o exemples que afavoreixen una postura, ometent informació
+  rellevant que la contradiria.
+ 
+------------------------------------------------------------
+2. LLENGUATGE EMOCIONAL
+Definició: el text busca provocar una reacció emocional (por, indignació, entusiasme,
+urgència) en lloc d'informar amb dades i arguments.
+ 
+Indicadors:
+- Paraules de por, indignació o urgència ("alarmant", "traïció", "última oportunitat").
+- Exclamacions, majúscules o repeticions per intensificar.
+- Apel·lació a les emocions o a la identitat en lloc de dades objectives.
+- Titulars o frases sensacionalistes (exagerats o alarmistes respecte del contingut real).
+ 
+------------------------------------------------------------
+3. DESINFORMACIÓ
+Definició: el text conté afirmacions probablement falses o enganyoses, o presentades de
+manera que indueixen a error.
+ 
+IMPORTANT — límit del sistema: analitzant NOMÉS el text, el sistema no pot verificar si una
+dada és certa o falsa al món real. Per tant NO ha d'afirmar que alguna cosa "és falsa". Ha de
+jutjar només els SENYALS de desinformació que es veuen en el propi text (com està escrit) i,
+si caldria una comprovació externa per confirmar-ho, ho ha de dir explícitament a l'explicació.
+ 
+Indicadors (senyals observables dins el text):
+- Afirma dades o xifres concretes sense citar cap font verificable.
+- Presenta com a fet general un cas anecdòtic o no representatiu.
+- Fa servir dades o cites reals aparentment fora de context per canviar-ne el sentit.
+- Titular o afirmació que no es correspon amb la resta del contingut.
+- Afirmació extraordinària o difícilment creïble presentada sense matisos ni proves.

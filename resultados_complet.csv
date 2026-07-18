@@ -1,0 +1,35 @@
+﻿Id,origen,Categoria,Ideologia,num_palabras,densidad,biaix,emocional,desinfo
+1,original,Biaix ideològic,Dreta,527,1.52,alta,lleu,nul·la
+2,original,Biaix ideològic,Esquerra,745,1.74,alta,lleu,nul·la
+3,original,Biaix ideològic,Central ,940,0.64,moderada,lleu,nul·la
+4,original,Biaix ideològic,Dreta,793,0.25,nul·la,lleu,nul·la
+5,original,Biaix ideològic,Esquerra,1004,0.5,lleu,moderada,nul·la
+6,original,Biaix ideològic,Central,888,0.56,moderada,lleu,nul·la
+7,original,Biaix ideològic,Dreta,825,1.09,alta,lleu,nul·la
+8,original,Biaix ideològic,Central,752,0.27,nul·la,lleu,nul·la
+9,original,Biaix ideològic,Esquerra,706,0.0,nul·la,nul·la,nul·la
+10,original,Biaix ideològic,Dreta,195,1.03,nul·la,lleu,lleu
+11,original,Llenguatge emocional,Dreta,256,1.17,lleu,lleu,nul·la
+12,original,Llenguatge emocional,Dreta,105,0.95,nul·la,lleu,nul·la
+13,original,Llenguatge emocional,Esquerra,562,0.89,nul·la,moderada,nul·la
+14,original,Llenguatge emocional,Esquerra,184,4.89,moderada,alta,lleu
+15,original,Llenguatge emocional,Dreta,331,8.46,lleu,alta,lleu
+16,original,Llenguatge emocional,Dreta,217,3.23,nul·la,alta,nul·la
+17,original,Llenguatge emocional,Esquerra,25,8.0,nul·la,lleu,nul·la
+18,original,Llenguatge emocional,Esquerra,43,13.95,nul·la,alta,nul·la
+19,original,Llenguatge emocional,Dreta,24,8.33,lleu,lleu,lleu
+20,original,Llenguatge emocional,Dreta,339,0.88,nul·la,moderada,nul·la
+21,original,Desinformació,,90,1.11,nul·la,lleu,lleu
+22,original,Desinformació,,188,1.06,nul·la,lleu,moderada
+23,original,Desinformació,,108,0.93,lleu,nul·la,nul·la
+24,original,Desinformació,,50,0.0,nul·la,nul·la,lleu
+101,nou,Biaix ideològic,Dreta,110,0.0,nul·la,nul·la,nul·la
+102,nou,Biaix ideològic,Esquerra,129,0.0,nul·la,nul·la,lleu
+103,nou,Biaix ideològic,Central,136,0.0,nul·la,nul·la,nul·la
+104,nou,Llenguatge emocional,Dreta,37,2.7,nul·la,lleu,nul·la
+105,nou,Llenguatge emocional,Esquerra,51,7.84,nul·la,moderada,nul·la
+106,nou,Llenguatge emocional,Dreta,38,5.26,nul·la,lleu,nul·la
+107,nou,Llenguatge emocional,Esquerra,38,2.63,nul·la,lleu,nul·la
+108,nou,Llenguatge emocional,Esquerra,29,3.45,nul·la,lleu,lleu
+109,nou,Desinformació,Dreta,56,1.79,nul·la,lleu,lleu
+110,nou,Desinformació,Dreta,281,1.42,nul·la,moderada,nul·la
