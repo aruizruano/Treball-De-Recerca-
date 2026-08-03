@@ -666,6 +666,10 @@ with tab1:
         st.divider()
         mostrar_detalles(data)
         st.divider()
+        mostrar_barra_ideologia(data)
+        st.divider()
+        mostrar_reescriptura_neutral(data, key_suffix="simple")
+        st.divider()
 
         titol_net = netejar_nom_fitxer(st.session_state.get("titol", "informe"))
         data_avui = datetime.now().strftime("%y-%m-%d")
@@ -859,6 +863,30 @@ with tab2:
         else:
             st.success(
                 f"Llenguatge emocional: Ambdós texts mostren mateixa intensitat (**{formatear_intensitat(emoc1)}**)"
+            )
+
+        st.divider()
+
+        # ===== ORIENTACIÓ IDEOLÒGICA =====
+        st.subheader("Orientació ideològica")
+        col1, col2 = st.columns(2)
+        with col1:
+            mostrar_barra_ideologia(st.session_state.resultado_1, titulo="Notícia 1")
+        with col2:
+            mostrar_barra_ideologia(st.session_state.resultado_2, titulo="Notícia 2")
+
+        st.divider()
+
+        # ===== VERSIONS ALTERNATIVES OBJECTIVES =====
+        st.subheader("Versions alternatives objectives")
+        col1, col2 = st.columns(2)
+        with col1:
+            mostrar_reescriptura_neutral(
+                st.session_state.resultado_1, titulo="Notícia 1", key_suffix="comp1"
+            )
+        with col2:
+            mostrar_reescriptura_neutral(
+                st.session_state.resultado_2, titulo="Notícia 2", key_suffix="comp2"
             )
 
         st.divider()
