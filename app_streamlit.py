@@ -396,6 +396,90 @@ def mostrar_detalles(data, titulo="Detalls"):
             st.write(f"**Anàlisi:** {explicacio}")
 
 
+def get_color_ideologia(puntuacio):
+    """Retorna color segons la puntuació ideològica (-100 a 100)"""
+    if puntuacio <= -20:
+        return "#3b82f6"  # Blau (esquerra)
+    elif puntuacio >= 20:
+        return "#ef4444"  # Vermell (dreta)
+    return "#9ca3af"  # Gris (centre)
+
+
+def mostrar_barra_ideologia(data, titulo="Orientació ideològica detectada"):
+    """Mostra una barra horitzontal esquerra-dreta amb un marcador de posició"""
+    ideologia = data.get("ideologia", {})
+
+    try:
+        puntuacio = float(ideologia.get("puntuacio", 0))
+    except (ValueError, TypeError):
+        puntuacio = 0
+    puntuacio = max(-100, min(100, puntuacio))
+
+    etiqueta = ideologia.get("etiqueta", "centre")
+    explicacio = ideologia.get("explicacio", "")
+    posicio_pct = (puntuacio + 100) / 2
+    color = get_color_ideologia(puntuacio)
+
+    if titulo:
+        st.markdown(f"**{titulo}**")
+
+    st.markdown(
+        f"""
+        <div style="margin: 0.5em 0 1.2em 0;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75em;
+                        font-weight:600; color:#6b7280; text-transform:uppercase;
+                        letter-spacing:0.5px; margin-bottom:0.5em;">
+                <span>Esquerra</span>
+                <span>Centre</span>
+                <span>Dreta</span>
+            </div>
+            <div style="position:relative; height:8px; border-radius:4px;
+                        background:linear-gradient(to right, #3b82f6, #d1d5db, #ef4444);
+                        margin-bottom:0.7em;">
+                <div style="position:absolute; top:50%; left:{posicio_pct}%;
+                            transform:translate(-50%, -50%); width:18px; height:18px;
+                            border-radius:50%; background:white; border:3px solid {color};
+                            box-shadow:0 1px 3px rgba(0,0,0,0.25);"></div>
+            </div>
+            <div style="text-align:center; font-weight:600; color:{color}; font-size:0.95em;
+                        text-transform:capitalize;">
+                {etiqueta.replace('-', ' ')} ({puntuacio:+.0f})
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if explicacio:
+        st.markdown(
+            f"<div class='criteri-box'>{explicacio}</div>",
+            unsafe_allow_html=True,
+        )
+
+
+def mostrar_reescriptura_neutral(data, titulo="Versió alternativa objectiva", key_suffix="default"):
+    """Mostra la reescriptura neutral generada per Claude com a proposta d'explicació objectiva"""
+    reescriptura = data.get("reescriptura_neutral", "")
+    if not reescriptura:
+        return
+
+    if titulo:
+        st.markdown(f"**{titulo}**")
+
+    st.write(
+        "Proposta de Claude per explicar el mateix contingut de manera "
+        "descriptiva i equilibrada, mantenint els fets originals:"
+    )
+    st.text_area(
+        "Reescriptura neutral",
+        value=reescriptura,
+        height=150,
+        label_visibility="collapsed",
+        disabled=True,
+        key=f"reescriptura_{key_suffix}",
+    )
+
+
 # ============================================================================
 # HEADER
 # ============================================================================

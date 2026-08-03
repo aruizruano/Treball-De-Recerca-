@@ -125,6 +125,14 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
             if confianca is not None:
                 resultado[dimension]["confianca"] = confianca
 
+        # ===== NUEVO: valores por defecto de ideologia i reescriptura_neutral =====
+        resultado["ideologia"] = {
+            "puntuacio": 0,
+            "etiqueta": "centre",
+            "explicacio": "No s'ha pogut determinar l'orientació ideològica a partir de la resposta.",
+        }
+        resultado["reescriptura_neutral"] = ""
+
         return resultado
     except Exception as e:
         pass
@@ -157,6 +165,14 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
                 ),
             }
 
+        # ===== NUEVO: valores por defecto de ideologia i reescriptura_neutral =====
+        resultado["ideologia"] = {
+            "puntuacio": 0,
+            "etiqueta": "centre",
+            "explicacio": "No s'ha pogut determinar l'orientació ideològica a partir de la resposta.",
+        }
+        resultado["reescriptura_neutral"] = ""
+
         return resultado
     except:
         pass
@@ -178,6 +194,12 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
             "fragment": "Error",
             "explicacio": "Error al procesar",
         },
+        "ideologia": {
+            "puntuacio": 0,
+            "etiqueta": "centre",
+            "explicacio": "No s'ha pogut determinar l'orientació ideològica.",
+        },
+        "reescriptura_neutral": "",
     }
 
 
@@ -258,6 +280,16 @@ def analizar_texto_claude(
                         "fragment": "N/A",
                         "explicacio": "No disponible",
                     }
+
+        # ===== NUEVO: garantizar ideologia i reescriptura_neutral pase lo que pase =====
+        if "ideologia" not in resposta_json:
+            resposta_json["ideologia"] = {
+                "puntuacio": 0,
+                "etiqueta": "centre",
+                "explicacio": "No disponible.",
+            }
+        if "reescriptura_neutral" not in resposta_json:
+            resposta_json["reescriptura_neutral"] = ""
 
         if verbose:
             print("✅ Análisis completado correctamente")
