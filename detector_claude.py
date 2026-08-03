@@ -18,6 +18,37 @@ from config_b import (
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
+def _reparar_json_truncat(fragment: str) -> str:
+    """
+    Repara un JSON truncat a mitja resposta (típicament perquè s'ha arribat
+    al límit de max_tokens abans d'acabar la "reescriptura_neutral").
+    Talla el text al darrer camp complet i tanca les claus/claudàtors oberts.
+    """
+    text = fragment.rstrip()
+
+    # Si el text acaba enmig d'un string obert (nombre imparell de cometes
+    # dobles no escapades), retallem fins a l'última cometa "segura".
+    cometes = len(re.findall(r'(?<!\\)"', text))
+    if cometes % 2 != 0:
+        pos_segura = text.rfind('",')
+        if pos_segura == -1:
+            pos_segura = text.rfind('"')
+        if pos_segura != -1:
+            text = text[: pos_segura + 1]
+
+    # Eliminem coma final solta si en queda una
+    text = re.sub(r",\s*$", "", text.rstrip())
+
+    # Tanquem claudàtors i claus que hagin quedat oberts
+    oberts_claudators = text.count("[") - text.count("]")
+    oberts_claus = text.count("{") - text.count("}")
+
+    text += "]" * max(oberts_claudators, 0)
+    text += "}" * max(oberts_claus, 0)
+
+    return text
+
+
 def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str, Any]:
     """
     Extrae JSON de forma EXTREMADAMENTE robusta.
@@ -59,6 +90,18 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
         resultado = json.loads(json_limpio)
         return resultado
     except json.JSONDecodeError:
+        pass
+
+    # ========== INTENTO 3.5: Reparar JSON truncat (resposta tallada per max_tokens) ==========
+    # Si Claude s'ha quedat sense tokens a mitja resposta (típic quan la
+    # "reescriptura_neutral" és llarga), el JSON queda obert. Aquí es talla
+    # al darrer camp complet i es tanquen les claus/claudàtors pendents.
+    try:
+        base = respuesta_raw[inicio:] if inicio != -1 else respuesta_raw
+        reparat = _reparar_json_truncat(base)
+        resultado = json.loads(reparat)
+        return resultado
+    except (json.JSONDecodeError, Exception):
         pass
 
     # ========== INTENTO 4: Buscar "intensitat" en el texto y reconstruir ==========
