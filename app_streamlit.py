@@ -457,7 +457,9 @@ def mostrar_barra_ideologia(data, titulo="Orientació ideològica detectada"):
         )
 
 
-def mostrar_barra_ideologia_comparativa(data1, data2, nom1="Notícia 1", nom2="Notícia 2"):
+def mostrar_barra_ideologia_comparativa(
+    data1, data2, nom1="Notícia 1", nom2="Notícia 2"
+):
     """Mostra una única barra esquerra-dreta amb un marcador per a cada notícia"""
     ideologia1 = data1.get("ideologia", {})
     ideologia2 = data2.get("ideologia", {})
@@ -532,7 +534,9 @@ def mostrar_barra_ideologia_comparativa(data1, data2, nom1="Notícia 1", nom2="N
             )
 
 
-def mostrar_reescriptura_neutral(data, titulo="Versió alternativa objectiva", key_suffix="default"):
+def mostrar_reescriptura_neutral(
+    data, titulo="Versió alternativa objectiva", key_suffix="default"
+):
     """Mostra la reescriptura neutral generada per Claude com a proposta d'explicació objectiva"""
     reescriptura = data.get("reescriptura_neutral", "")
     if not reescriptura:
