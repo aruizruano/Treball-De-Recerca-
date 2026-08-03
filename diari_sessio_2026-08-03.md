@@ -1,0 +1,19 @@
+# Diari de sessió — 3 d'agost de 2026
+
+## Tasques
+
+Avui s'ha acabat d'implementar la funcionalitat de l'orientació ideològica que ja estava preparada al prompt del Sistema B però que encara no es mostrava enlloc. S'ha connectat la barra esquerra-dreta i la reescriptura neutral a la interfície de Streamlit, tant a la pestanya d'anàlisi individual com a la de comparació de notícies, on en aquest darrer cas s'ha optat per una única barra amb dos marcadors en lloc de dues barres separades, perquè permet comparar d'un cop d'ull l'orientació de les dues notícies. També s'ha incorporat la mateixa informació (gràfic d'ideologia i reescriptura neutral) als dos informes en PDF, l'individual i el comparatiu. Finalment, s'ha redactat un blueprint tècnic (`blueprint_barra_ideologica.md`) que documenta l'arquitectura, l'esquema de dades i les limitacions metodològiques d'aquesta funcionalitat, de cara a poder-lo consultar més endavant en redactar la memòria.
+
+## Problemes i solucions
+
+El primer problema va aparèixer just després de connectar la barra: malgrat que el text analitzat tenia un biaix i un llenguatge emocional alts, l'orientació ideològica sortia sempre com "centre" amb un missatge per defecte. La causa era que `MAX_TOKENS` estava fixat a 1024, un valor pensat per a la versió anterior del prompt, que ara ha de generar quatre explicacions més una reescriptura completa del text; la resposta de Claude es tallava a mig JSON abans d'arribar al camp d'ideologia, i el sistema de reconstrucció per regex només recuperava les tres dimensions originals. La solució ha estat pujar `MAX_TOKENS` (primer a 4096 i després a 8192) i afegir un pas de reparació de JSON truncat que, en lloc de descartar el camp incomplet, en conserva el contingut parcial.
+
+Un segon problema, més visual, va sortir amb la reescriptura neutral: es mostrava dins d'un `text_area` desactivat, que Streamlit pinta en gris i bloqueja la selecció de text, de manera que ni es llegia bé ni es podia copiar. S'ha substituït per `st.code()`, que manté el text nítid i afegeix un botó de copiar integrat.
+
+Als informes en PDF han sortit dos problemes més. D'una banda, l'etiqueta "Esquerra" es tallava i quedava com "squerra" perquè el text quedava centrat exactament sobre la marca de l'extrem esquerre del gràfic, i mig text queia fora de la imatge en exportar-la; s'ha solucionat alineant aquest text cap a dins (`ha='left'` i `ha='right'` als extrems). D'altra banda, al PDF comparatiu apareixien quatre punts en lloc de dos: la llegenda de matplotlib dibuixava els seus propis símbols de color a sobre dels marcadors reals de la barra. S'ha tret la llegenda del gràfic i s'ha dibuixat directament al text del PDF un punt de color davant del nom de cada notícia.
+
+Finalment, en comparar dues notícies, la reescriptura neutral només sortia per a la segona i no per a la primera. És el mateix problema de truncament de fons: la reescriptura és el darrer camp del JSON i sol ser el més llarg, de manera que és el primer a quedar-se tallat quan la resposta s'acosta al límit de tokens. A banda de pujar `MAX_TOKENS`, ara la reparació de JSON conserva el text parcial que s'hagi arribat a generar, i si tot i així queda buit, la interfície mostra un avís explicant per què, en lloc de deixar la columna en blanc sense cap explicació.
+
+## Pròxima tasca
+
+Queda pendent decidir si es baixa el paràmetre `temperature` de la crida a l'API (ara mateix per defecte, a 1.0), ja que s'ha observat que un mateix text pot donar resultats lleugerament diferents entre execucions, cosa rellevant per a la reproductibilitat dels resultats del Sistema B. També caldrà valorar si l'eix d'orientació ideològica, en ser una dimensió afegida després del disseny original de la rúbrica, s'ha d'incloure d'alguna manera a la comparativa amb l'avaluadora experta, ja que ara mateix no té cap validació independent com sí que tenen el biaix, la desinformació i el llenguatge emocional.
