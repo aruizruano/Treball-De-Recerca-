@@ -470,14 +470,7 @@ def mostrar_reescriptura_neutral(data, titulo="Versió alternativa objectiva", k
         "Proposta de Claude per explicar el mateix contingut de manera "
         "descriptiva i equilibrada, mantenint els fets originals:"
     )
-    st.text_area(
-        "Reescriptura neutral",
-        value=reescriptura,
-        height=150,
-        label_visibility="collapsed",
-        disabled=True,
-        key=f"reescriptura_{key_suffix}",
-    )
+    st.code(reescriptura, language="text")
 
 
 # ============================================================================
