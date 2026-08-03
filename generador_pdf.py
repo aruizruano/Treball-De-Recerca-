@@ -11,6 +11,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 
 # Noms llegibles de cada dimensió
 NOMS_DIMENSIONS = {
@@ -38,6 +40,12 @@ VALOR_INTENSITAT = {"nul·la": 0, "lleu": 1, "moderada": 2, "alta": 3}
 
 ROSA = (217, 168, 200)
 GRIS = (127, 140, 141)
+
+# Gradient blau (esquerra) -> gris (centre) -> vermell (dreta), mateix criteri
+# de colors que la barra ideològica de la interfície streamlit
+CMAP_IDEOLOGIA = LinearSegmentedColormap.from_list(
+    "ideologia", ["#3b82f6", "#d1d5db", "#ef4444"]
+)
 
 # Ruta de les fonts del sistema Windows
 CARPETA_FONTS = Path("C:/Windows/Fonts")
@@ -235,6 +243,91 @@ def crear_grafic_comparatiu(data1, data2):
     return buffer
 
 
+def _puntuacio_ideologia(data):
+    """Extreu i acota (-100 a 100) la puntuació ideològica d'un resultat"""
+    try:
+        puntuacio = float(data.get("ideologia", {}).get("puntuacio", 0))
+    except (ValueError, TypeError):
+        puntuacio = 0
+    return max(-100, min(100, puntuacio))
+
+
+def crear_grafic_ideologia(data):
+    """
+    Crea una barra horitzontal esquerra-dreta amb un marcador que indica
+    la puntuació ideològica del text, i el retorna com a imatge PNG.
+    """
+    puntuacio = _puntuacio_ideologia(data)
+
+    fig, ax = plt.subplots(figsize=(7, 1.3))
+    gradient = np.linspace(-100, 100, 500).reshape(1, -1)
+    ax.imshow(gradient, aspect="auto", cmap=CMAP_IDEOLOGIA, extent=[-100, 100, 0, 1])
+    ax.scatter(
+        [puntuacio], [0.5], s=260, color="white", edgecolor="#1f2937",
+        linewidth=2.5, zorder=3,
+    )
+
+    ax.set_xlim(-100, 100)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    ax.set_xticks([-100, 0, 100])
+    ax.set_xticklabels(["Esquerra", "Centre", "Dreta"], fontsize=9)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.tick_params(axis="x", length=0)
+    fig.subplots_adjust(left=0.03, right=0.97, top=0.85, bottom=0.35)
+
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format="png", dpi=150)
+    plt.close(fig)
+    buffer.seek(0)
+    return buffer
+
+
+def crear_grafic_ideologia_comparatiu(data1, data2):
+    """
+    Crea una única barra esquerra-dreta amb DOS marcadors (un per notícia),
+    i el retorna com a imatge PNG en memòria.
+    """
+    punt1 = _puntuacio_ideologia(data1)
+    punt2 = _puntuacio_ideologia(data2)
+
+    color1 = tuple(c / 255 for c in ROSA)
+    color2 = tuple(c / 255 for c in GRIS)
+
+    fig, ax = plt.subplots(figsize=(7, 1.5))
+    gradient = np.linspace(-100, 100, 500).reshape(1, -1)
+    ax.imshow(gradient, aspect="auto", cmap=CMAP_IDEOLOGIA, extent=[-100, 100, 0, 1])
+    ax.scatter(
+        [punt1], [0.65], s=260, color=color1, edgecolor="white",
+        linewidth=2, zorder=3, label="Notícia 1",
+    )
+    ax.scatter(
+        [punt2], [0.3], s=260, color=color2, edgecolor="white",
+        linewidth=2, zorder=3, label="Notícia 2",
+    )
+
+    ax.set_xlim(-100, 100)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    ax.set_xticks([-100, 0, 100])
+    ax.set_xticklabels(["Esquerra", "Centre", "Dreta"], fontsize=9)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.tick_params(axis="x", length=0)
+    ax.legend(
+        loc="upper center", bbox_to_anchor=(0.5, 1.42), ncol=2,
+        fontsize=8, frameon=False,
+    )
+    fig.subplots_adjust(left=0.03, right=0.97, top=0.72, bottom=0.35)
+
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format="png", dpi=150)
+    plt.close(fig)
+    buffer.seek(0)
+    return buffer
+
+
 def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
     """
     Genera un informe en PDF que compara els resultats de dues notícies.
@@ -276,6 +369,33 @@ def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
     pdf.image(grafic, x=10, y=y0, w=190)
     pdf.set_y(y0 + 190 * 3 / 7 + 6)
 
+    # ================= ORIENTACIÓ IDEOLÒGICA =================
+    pdf.set_font(font, "B", 11)
+    pdf.set_text_color(31, 41, 55)
+    paragraf(pdf, font, 7, "Orientació ideològica")
+    grafic_ideologia = crear_grafic_ideologia_comparatiu(data1, data2)
+    y0 = pdf.get_y()
+    pdf.image(grafic_ideologia, x=10, y=y0, w=190)
+    pdf.set_y(y0 + 190 * 1.5 / 7 + 4)
+
+    for nom_noticia, data in (("Notícia 1", data1), ("Notícia 2", data2)):
+        ideologia = data.get("ideologia", {})
+        etiqueta = ideologia.get("etiqueta", "centre").replace("-", " ")
+        puntuacio = _puntuacio_ideologia(data)
+        explicacio = ideologia.get("explicacio", "")
+
+        pdf.set_font(font, "B", 9)
+        pdf.set_text_color(31, 41, 55)
+        paragraf(pdf, font, 5, nom_noticia + ": " + etiqueta + f" ({puntuacio:+.0f})")
+
+        if explicacio:
+            pdf.set_font(font, "", 9)
+            pdf.set_text_color(*GRIS)
+            paragraf(pdf, font, 5, explicacio)
+        pdf.ln(1)
+
+    pdf.ln(4)
+
     def bloc_noticia(nom_noticia, data, titol):
         pdf.set_font(font, "B", 13)
         pdf.set_text_color(*ROSA)
@@ -314,6 +434,17 @@ def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
             pdf.set_text_color(75, 85, 99)
             paragraf(pdf, font, 5, explicacio)
             pdf.ln(4)
+
+        reescriptura = data.get("reescriptura_neutral", "")
+        if reescriptura:
+            pdf.set_font(font, "B", 10)
+            pdf.set_text_color(31, 41, 55)
+            paragraf(pdf, font, 6, "Versió alternativa objectiva")
+
+            pdf.set_font(font, "", 9)
+            pdf.set_text_color(75, 85, 99)
+            paragraf(pdf, font, 5, reescriptura)
+            pdf.ln(2)
 
         pdf.ln(2)
 
@@ -472,6 +603,44 @@ def generar_pdf(data, text_analitzat="", titol=""):
         paragraf(pdf, font, 5, explicacio)
 
         pdf.ln(5)
+
+    # ================= ORIENTACIÓ IDEOLÒGICA =================
+    ideologia = data.get("ideologia", {})
+    etiqueta_ideologia = ideologia.get("etiqueta", "centre").replace("-", " ")
+    puntuacio_ideologia = _puntuacio_ideologia(data)
+    explicacio_ideologia = ideologia.get("explicacio", "")
+
+    pdf.set_font(font, "B", 11)
+    pdf.set_text_color(31, 41, 55)
+    paragraf(pdf, font, 7, "Orientació ideològica")
+
+    grafic_ideologia = crear_grafic_ideologia(data)
+    y0 = pdf.get_y()
+    pdf.image(grafic_ideologia, x=10, y=y0, w=190)
+    pdf.set_y(y0 + 190 * 1.3 / 7 + 4)
+
+    pdf.set_font(font, "B", 12)
+    pdf.set_text_color(31, 41, 55)
+    paragraf(pdf, font, 7, etiqueta_ideologia + f" ({puntuacio_ideologia:+.0f})")
+
+    if explicacio_ideologia:
+        pdf.set_font(font, "", 9)
+        pdf.set_text_color(*GRIS)
+        paragraf(pdf, font, 5, explicacio_ideologia)
+
+    pdf.ln(6)
+
+    # ================= VERSIÓ ALTERNATIVA OBJECTIVA =================
+    reescriptura = data.get("reescriptura_neutral", "")
+    if reescriptura:
+        pdf.set_font(font, "B", 11)
+        pdf.set_text_color(31, 41, 55)
+        paragraf(pdf, font, 7, "Versió alternativa objectiva")
+
+        pdf.set_font(font, "", 9)
+        pdf.set_text_color(75, 85, 99)
+        paragraf(pdf, font, 5, reescriptura)
+        pdf.ln(4)
 
     # ================= PEU =================
     pdf.ln(4)

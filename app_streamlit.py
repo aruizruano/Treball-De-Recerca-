@@ -457,6 +457,81 @@ def mostrar_barra_ideologia(data, titulo="Orientació ideològica detectada"):
         )
 
 
+def mostrar_barra_ideologia_comparativa(data1, data2, nom1="Notícia 1", nom2="Notícia 2"):
+    """Mostra una única barra esquerra-dreta amb un marcador per a cada notícia"""
+    ideologia1 = data1.get("ideologia", {})
+    ideologia2 = data2.get("ideologia", {})
+
+    def _puntuacio(ideologia):
+        try:
+            p = float(ideologia.get("puntuacio", 0))
+        except (ValueError, TypeError):
+            p = 0
+        return max(-100, min(100, p))
+
+    punt1 = _puntuacio(ideologia1)
+    punt2 = _puntuacio(ideologia2)
+    pos1 = (punt1 + 100) / 2
+    pos2 = (punt2 + 100) / 2
+    etiqueta1 = ideologia1.get("etiqueta", "centre").replace("-", " ")
+    etiqueta2 = ideologia2.get("etiqueta", "centre").replace("-", " ")
+
+    color1 = "#c989ba"  # rosa - notícia 1 (mateix to que els botons de l'app)
+    color2 = "#4b5563"  # gris fosc - notícia 2
+
+    st.markdown(
+        f"""
+        <div style="margin: 0.5em 0 1em 0;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75em;
+                        font-weight:600; color:#6b7280; text-transform:uppercase;
+                        letter-spacing:0.5px; margin-bottom:0.5em;">
+                <span>Esquerra</span>
+                <span>Centre</span>
+                <span>Dreta</span>
+            </div>
+            <div style="position:relative; height:12px; border-radius:6px;
+                        background:linear-gradient(to right, #3b82f6, #d1d5db, #ef4444);
+                        margin-bottom:0.8em;">
+                <div style="position:absolute; top:25%; left:{pos1}%;
+                            transform:translate(-50%, -50%); width:17px; height:17px;
+                            border-radius:50%; background:{color1}; border:3px solid white;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.35); z-index:2;"></div>
+                <div style="position:absolute; top:75%; left:{pos2}%;
+                            transform:translate(-50%, -50%); width:17px; height:17px;
+                            border-radius:50%; background:{color2}; border:3px solid white;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.35); z-index:1;"></div>
+            </div>
+            <div style="display:flex; justify-content:center; gap:1.8em; font-size:0.85em;
+                        color:#374151;">
+                <span><span style="display:inline-block; width:10px; height:10px;
+                      border-radius:50%; background:{color1}; margin-right:5px;"></span>
+                      {nom1}: <strong>{etiqueta1}</strong> ({punt1:+.0f})</span>
+                <span><span style="display:inline-block; width:10px; height:10px;
+                      border-radius:50%; background:{color2}; margin-right:5px;"></span>
+                      {nom2}: <strong>{etiqueta2}</strong> ({punt2:+.0f})</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    col1, col2 = st.columns(2)
+    with col1:
+        expl1 = ideologia1.get("explicacio", "")
+        if expl1:
+            st.markdown(
+                f"<div class='criteri-box'><strong>{nom1}:</strong> {expl1}</div>",
+                unsafe_allow_html=True,
+            )
+    with col2:
+        expl2 = ideologia2.get("explicacio", "")
+        if expl2:
+            st.markdown(
+                f"<div class='criteri-box'><strong>{nom2}:</strong> {expl2}</div>",
+                unsafe_allow_html=True,
+            )
+
+
 def mostrar_reescriptura_neutral(data, titulo="Versió alternativa objectiva", key_suffix="default"):
     """Mostra la reescriptura neutral generada per Claude com a proposta d'explicació objectiva"""
     reescriptura = data.get("reescriptura_neutral", "")
@@ -862,11 +937,9 @@ with tab2:
 
         # ===== ORIENTACIÓ IDEOLÒGICA =====
         st.subheader("Orientació ideològica")
-        col1, col2 = st.columns(2)
-        with col1:
-            mostrar_barra_ideologia(st.session_state.resultado_1, titulo="Notícia 1")
-        with col2:
-            mostrar_barra_ideologia(st.session_state.resultado_2, titulo="Notícia 2")
+        mostrar_barra_ideologia_comparativa(
+            st.session_state.resultado_1, st.session_state.resultado_2
+        )
 
         st.divider()
 
