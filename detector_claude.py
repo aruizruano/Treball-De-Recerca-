@@ -21,20 +21,25 @@ client = Anthropic(api_key=ANTHROPIC_API_KEY)
 def _reparar_json_truncat(fragment: str) -> str:
     """
     Repara un JSON truncat a mitja resposta (típicament perquè s'ha arribat
-    al límit de max_tokens abans d'acabar la "reescriptura_neutral").
-    Talla el text al darrer camp complet i tanca les claus/claudàtors oberts.
+    al límit de max_tokens abans d'acabar la "reescriptura_neutral", que és
+    el darrer camp i sol ser el més llarg).
+
+    Si el tall ha passat enmig d'un string obert (per exemple a mitja
+    "reescriptura_neutral"), es conserva el text parcial generat fins
+    aleshores (marcat amb "...") en lloc de descartar-lo sencer, i després
+    es tanquen les claus/claudàtors que hagin quedat oberts.
     """
     text = fragment.rstrip()
 
     # Si el text acaba enmig d'un string obert (nombre imparell de cometes
-    # dobles no escapades), retallem fins a l'última cometa "segura".
+    # dobles no escapades), el tanquem just allà on s'ha tallat, conservant
+    # el contingut parcial en comptes de descartar-lo.
     cometes = len(re.findall(r'(?<!\\)"', text))
     if cometes % 2 != 0:
-        pos_segura = text.rfind('",')
-        if pos_segura == -1:
-            pos_segura = text.rfind('"')
-        if pos_segura != -1:
-            text = text[: pos_segura + 1]
+        if text.endswith("\\"):
+            text = text[:-1]
+        text = text.rstrip()
+        text += "... [TALLAT]\""
 
     # Eliminem coma final solta si en queda una
     text = re.sub(r",\s*$", "", text.rstrip())

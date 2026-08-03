@@ -539,11 +539,17 @@ def mostrar_reescriptura_neutral(
 ):
     """Mostra la reescriptura neutral generada per Claude com a proposta d'explicació objectiva"""
     reescriptura = data.get("reescriptura_neutral", "")
-    if not reescriptura:
-        return
 
     if titulo:
         st.markdown(f"**{titulo}**")
+
+    if not reescriptura:
+        st.info(
+            "No s'ha pogut generar la reescriptura neutral per aquest text "
+            "(la resposta de Claude s'ha tallat abans d'acabar-la). Torna a "
+            "analitzar el text si vols intentar-ho de nou."
+        )
+        return
 
     st.write(
         "Proposta de Claude per explicar el mateix contingut de manera "

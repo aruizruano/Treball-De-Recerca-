@@ -272,10 +272,16 @@ def crear_grafic_ideologia(data):
     ax.set_yticks([])
     ax.set_xticks([-100, 0, 100])
     ax.set_xticklabels(["Esquerra", "Centre", "Dreta"], fontsize=9)
+    # Alineem "Esquerra" i "Dreta" cap endins perquè no es tallin a la vora
+    # de la imatge (per defecte queden centrats sobre la marca, i mig text
+    # cau fora del retall del PNG)
+    etiquetes_x = ax.get_xticklabels()
+    etiquetes_x[0].set_ha("left")
+    etiquetes_x[2].set_ha("right")
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.tick_params(axis="x", length=0)
-    fig.subplots_adjust(left=0.03, right=0.97, top=0.85, bottom=0.35)
+    fig.subplots_adjust(left=0.06, right=0.94, top=0.85, bottom=0.35)
 
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png", dpi=150)
@@ -295,16 +301,16 @@ def crear_grafic_ideologia_comparatiu(data1, data2):
     color1 = tuple(c / 255 for c in ROSA)
     color2 = tuple(c / 255 for c in GRIS)
 
-    fig, ax = plt.subplots(figsize=(7, 1.5))
+    fig, ax = plt.subplots(figsize=(7, 1.3))
     gradient = np.linspace(-100, 100, 500).reshape(1, -1)
     ax.imshow(gradient, aspect="auto", cmap=CMAP_IDEOLOGIA, extent=[-100, 100, 0, 1])
     ax.scatter(
         [punt1], [0.65], s=260, color=color1, edgecolor="white",
-        linewidth=2, zorder=3, label="Notícia 1",
+        linewidth=2, zorder=3,
     )
     ax.scatter(
         [punt2], [0.3], s=260, color=color2, edgecolor="white",
-        linewidth=2, zorder=3, label="Notícia 2",
+        linewidth=2, zorder=3,
     )
 
     ax.set_xlim(-100, 100)
@@ -312,14 +318,18 @@ def crear_grafic_ideologia_comparatiu(data1, data2):
     ax.set_yticks([])
     ax.set_xticks([-100, 0, 100])
     ax.set_xticklabels(["Esquerra", "Centre", "Dreta"], fontsize=9)
+    # Alineem "Esquerra" i "Dreta" cap endins perquè no es tallin a la vora
+    etiquetes_x = ax.get_xticklabels()
+    etiquetes_x[0].set_ha("left")
+    etiquetes_x[2].set_ha("right")
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.tick_params(axis="x", length=0)
-    ax.legend(
-        loc="upper center", bbox_to_anchor=(0.5, 1.42), ncol=2,
-        fontsize=8, frameon=False,
-    )
-    fig.subplots_adjust(left=0.03, right=0.97, top=0.72, bottom=0.35)
+    # Nota: la llegenda de colors (Notícia 1 / Notícia 2) NO es dibuixa aquí
+    # amb ax.legend() perquè els seus marcadors es confonien visualment amb
+    # els punts reals de la barra (semblava que hi havia 4 punts). El nom
+    # de cada notícia amb el seu color es mostra just sota la imatge, al PDF.
+    fig.subplots_adjust(left=0.06, right=0.94, top=0.85, bottom=0.35)
 
     buffer = io.BytesIO()
     fig.savefig(buffer, format="png", dpi=150)
@@ -376,22 +386,36 @@ def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
     grafic_ideologia = crear_grafic_ideologia_comparatiu(data1, data2)
     y0 = pdf.get_y()
     pdf.image(grafic_ideologia, x=10, y=y0, w=190)
-    pdf.set_y(y0 + 190 * 1.5 / 7 + 4)
+    pdf.set_y(y0 + 190 * 1.3 / 7 + 4)
 
-    for nom_noticia, data in (("Notícia 1", data1), ("Notícia 2", data2)):
+    for nom_noticia, data, color_punt in (
+        ("Notícia 1", data1, ROSA),
+        ("Notícia 2", data2, GRIS),
+    ):
         ideologia = data.get("ideologia", {})
         etiqueta = ideologia.get("etiqueta", "centre").replace("-", " ")
         puntuacio = _puntuacio_ideologia(data)
         explicacio = ideologia.get("explicacio", "")
+
+        # Punt de color davant del nom, per identificar quin marcador del
+        # gràfic correspon a cada notícia
+        x_inici = pdf.get_x()
+        y_inici = pdf.get_y()
+        pdf.set_fill_color(*color_punt)
+        pdf.ellipse(x_inici, y_inici + 1, 3, 3, style="F")
+        pdf.set_xy(x_inici + 5, y_inici)
 
         pdf.set_font(font, "B", 9)
         pdf.set_text_color(31, 41, 55)
         paragraf(pdf, font, 5, nom_noticia + ": " + etiqueta + f" ({puntuacio:+.0f})")
 
         if explicacio:
+            pdf.set_x(x_inici + 5)
             pdf.set_font(font, "", 9)
             pdf.set_text_color(*GRIS)
-            paragraf(pdf, font, 5, explicacio)
+            pdf.multi_cell(
+                185, 5, net(explicacio, font), new_x="LMARGIN", new_y="NEXT"
+            )
         pdf.ln(1)
 
     pdf.ln(4)
