@@ -1,0 +1,10 @@
+Id,Categoria,biaix_intensitat_A,desinfo_intensitat_A,emocional_intensitat_A,biaix_intensitat_B,desinfo_intensitat_B,emocional_intensitat_B
+101,Biaix ideològic,nul·la,nul·la,nul·la,lleu,nul·la,lleu
+102,Biaix ideològic,nul·la,lleu,nul·la,alta,moderada,moderada
+103,Biaix ideològic,nul·la,nul·la,nul·la,lleu,nul·la,moderada
+104,Llenguatge emocional,nul·la,nul·la,lleu,alta,moderada,alta
+105,Llenguatge emocional,nul·la,nul·la,moderada,moderada,lleu,alta
+106,Llenguatge emocional,nul·la,nul·la,lleu,alta,moderada,alta
+107,Llenguatge emocional,nul·la,nul·la,lleu,moderada,lleu,alta
+108,Llenguatge emocional,nul·la,lleu,lleu,moderada,lleu,alta
+109,Desinformació,nul·la,lleu,lleu,alta,moderada,moderada

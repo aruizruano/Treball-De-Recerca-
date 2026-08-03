@@ -1,0 +1,25 @@
+Id,Categoria,biaix_intensitat_A,desinfo_intensitat_A,emocional_intensitat_A,biaix_intensitat_B,desinfo_intensitat_B,emocional_intensitat_B
+1,Biaix ideològic,alta,nul·la,lleu,alta,lleu,moderada
+2,Biaix ideològic,alta,nul·la,lleu,alta,lleu,moderada
+3,Biaix ideològic,moderada,nul·la,lleu,moderada,lleu,moderada
+4,Biaix ideològic,nul·la,nul·la,lleu,moderada,moderada,moderada
+5,Biaix ideològic,lleu,nul·la,moderada,alta,lleu,alta
+6,Biaix ideològic,moderada,nul·la,lleu,moderada,lleu,moderada
+7,Biaix ideològic,alta,nul·la,lleu,alta,moderada,moderada
+8,Biaix ideològic,nul·la,nul·la,lleu,lleu,lleu,lleu
+9,Biaix ideològic,nul·la,nul·la,nul·la,moderada,moderada,moderada
+10,Biaix ideològic,nul·la,lleu,lleu,alta,alta,moderada
+11,Llenguatge emocional,lleu,nul·la,lleu,alta,moderada,alta
+12,Llenguatge emocional,nul·la,nul·la,lleu,alta,alta,alta
+13,Llenguatge emocional,nul·la,nul·la,moderada,moderada,lleu,alta
+14,Llenguatge emocional,moderada,lleu,alta,alta,moderada,alta
+15,Llenguatge emocional,lleu,lleu,alta,alta,moderada,alta
+16,Llenguatge emocional,nul·la,nul·la,alta,alta,moderada,alta
+17,Llenguatge emocional,nul·la,nul·la,lleu,alta,moderada,alta
+18,Llenguatge emocional,nul·la,nul·la,alta,alta,lleu,alta
+19,Llenguatge emocional,lleu,lleu,lleu,alta,moderada,alta
+20,Llenguatge emocional,nul·la,nul·la,moderada,moderada,lleu,moderada
+21,Desinformació,nul·la,lleu,lleu,alta,moderada,alta
+22,Desinformació,nul·la,moderada,lleu,alta,alta,alta
+23,Desinformació,lleu,nul·la,nul·la,alta,moderada,alta
+24,Desinformació,nul·la,lleu,nul·la,alta,alta,moderada

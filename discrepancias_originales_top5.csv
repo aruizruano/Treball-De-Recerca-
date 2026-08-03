@@ -1,0 +1,6 @@
+Id,Categoria,biaix_intensitat_A,desinfo_intensitat_A,emocional_intensitat_A,biaix_intensitat_B,desinfo_intensitat_B,emocional_intensitat_B,biaix_num_A,biaix_num_B,biaix_diff,desinfo_num_A,desinfo_num_B,desinfo_diff,emocional_num_A,emocional_num_B,emocional_diff,discrepancia_total
+12,Llenguatge emocional,nul·la,nul·la,lleu,alta,alta,alta,0,3,3,0,3,3,1,3,2,8
+17,Llenguatge emocional,nul·la,nul·la,lleu,alta,moderada,alta,0,3,3,0,2,2,1,3,2,7
+23,Desinformació,lleu,nul·la,nul·la,alta,moderada,alta,1,3,2,0,2,2,0,3,3,7
+24,Desinformació,nul·la,lleu,nul·la,alta,alta,moderada,0,3,3,1,3,2,0,2,2,7
+9,Biaix ideològic,nul·la,nul·la,nul·la,moderada,moderada,moderada,0,2,2,0,2,2,0,2,2,6
