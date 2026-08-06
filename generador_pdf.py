@@ -263,8 +263,13 @@ def crear_grafic_ideologia(data):
     gradient = np.linspace(-100, 100, 500).reshape(1, -1)
     ax.imshow(gradient, aspect="auto", cmap=CMAP_IDEOLOGIA, extent=[-100, 100, 0, 1])
     ax.scatter(
-        [puntuacio], [0.5], s=260, color="white", edgecolor="#1f2937",
-        linewidth=2.5, zorder=3,
+        [puntuacio],
+        [0.5],
+        s=260,
+        color="white",
+        edgecolor="#1f2937",
+        linewidth=2.5,
+        zorder=3,
     )
 
     ax.set_xlim(-100, 100)
@@ -305,12 +310,22 @@ def crear_grafic_ideologia_comparatiu(data1, data2):
     gradient = np.linspace(-100, 100, 500).reshape(1, -1)
     ax.imshow(gradient, aspect="auto", cmap=CMAP_IDEOLOGIA, extent=[-100, 100, 0, 1])
     ax.scatter(
-        [punt1], [0.65], s=260, color=color1, edgecolor="white",
-        linewidth=2, zorder=3,
+        [punt1],
+        [0.65],
+        s=260,
+        color=color1,
+        edgecolor="white",
+        linewidth=2,
+        zorder=3,
     )
     ax.scatter(
-        [punt2], [0.3], s=260, color=color2, edgecolor="white",
-        linewidth=2, zorder=3,
+        [punt2],
+        [0.3],
+        s=260,
+        color=color2,
+        edgecolor="white",
+        linewidth=2,
+        zorder=3,
     )
 
     ax.set_xlim(-100, 100)
@@ -413,9 +428,7 @@ def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
             pdf.set_x(x_inici + 5)
             pdf.set_font(font, "", 9)
             pdf.set_text_color(*GRIS)
-            pdf.multi_cell(
-                185, 5, net(explicacio, font), new_x="LMARGIN", new_y="NEXT"
-            )
+            pdf.multi_cell(185, 5, net(explicacio, font), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(1)
 
     pdf.ln(4)

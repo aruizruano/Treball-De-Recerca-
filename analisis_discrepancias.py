@@ -133,4 +133,4 @@ print("   - discrepancias_nuevos_todos.csv")
 
 print("\n" + "=" * 70)
 print("ANÀLISI COMPLETADA!")
-print("=" * 701)
+print("=" * 70)
