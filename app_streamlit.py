@@ -206,6 +206,7 @@ try:
     from detector_claude import analizar_texto_claude, generar_titol
     from generador_pdf import (
         generar_pdf,
+        crear_grafic_intensitats,
         crear_grafic_comparatiu,
         generar_pdf_comparatiu,
     )
@@ -748,7 +749,12 @@ with tab1:
         st.divider()
         mostrar_reescriptura_neutral(data, key_suffix="simple")
         st.divider()
-
+        st.subheader("Resum visual")
+        st.image(
+            crear_grafic_intensitats(data),
+            use_container_width=True,
+        )
+        st.divider()
         titol_net = netejar_nom_fitxer(st.session_state.get("titol", "informe"))
         data_avui = datetime.now().strftime("%y-%m-%d")
         pdf_bytes = generar_pdf(
