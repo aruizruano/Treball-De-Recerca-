@@ -30,6 +30,8 @@ EXT_EXCLOSES = {".pyc", ".png", ".jpg", ".jpeg", ".pdf", ".lnk", ".xlsx", ".zip"
 
 FILES_MOSTRA_CSV = 3
 PATRO_SECRET = re.compile(r"sk-[A-Za-z0-9_\-]{12,}")
+# No comptar com a secret els placeholders d'exemple: sk-ant-xxxx, sk-ant-...
+PATRO_PLACEHOLDER = re.compile(r"^sk-[a-z]*-?[xX.]{4,}$")
 
 
 def es_exclos(cami: Path) -> bool:
@@ -49,11 +51,14 @@ def llegir(cami: Path) -> str:
 
 
 def redacta(text: str, cami: str, avisos: list[str]) -> str:
-    """Substitueix qualsevol clau API que s'hagi colat al codi."""
-    if PATRO_SECRET.search(text):
+    """Substitueix qualsevol clau API real que s'hagi colat al codi (ignora placeholders)."""
+    def substitueix(m: re.Match) -> str:
+        if PATRO_PLACEHOLDER.match(m.group(0)):
+            return m.group(0)
         avisos.append(cami)
-        text = PATRO_SECRET.sub("<CLAU_API_ELIMINADA>", text)
-    return text
+        return "<CLAU_API_ELIMINADA>"
+
+    return PATRO_SECRET.sub(substitueix, text)
 
 
 def resum_csv(cami: Path) -> str:
