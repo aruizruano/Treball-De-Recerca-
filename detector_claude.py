@@ -39,7 +39,7 @@ def _reparar_json_truncat(fragment: str) -> str:
         if text.endswith("\\"):
             text = text[:-1]
         text = text.rstrip()
-        text += "... [TALLAT]\""
+        text += '... [TALLAT]"'
 
     # Eliminem coma final solta si en queda una
     text = re.sub(r",\s*$", "", text.rstrip())
@@ -262,9 +262,16 @@ def validar_resposta_json(resposta_json: dict) -> bool:
                 "intensitat" not in dim_data
                 or "fragment" not in dim_data
                 or "explicacio" not in dim_data
+                or "confianca" not in dim_data
             ):
                 return False
             if dim_data["intensitat"] not in INTENSITATS_VALIDES:
+                return False
+            try:
+                confianca_val = int(dim_data["confianca"])
+            except (TypeError, ValueError):
+                return False
+            if confianca_val < 0 or confianca_val > 100:
                 return False
         return True
     except:
@@ -317,10 +324,10 @@ def analizar_texto_claude(
         resposta_json = extraer_json_robusto(resposta_raw, verbose=verbose)
 
         # Validar
+        dims_sense_confianca = []
         if not validar_resposta_json(resposta_json):
             if verbose:
                 print("⚠️  Estructura incompleta, completando...")
-
             # Asegurar que tiene todos los campos
             for dim in DIMENSIONS:
                 if dim not in resposta_json:
@@ -329,6 +336,20 @@ def analizar_texto_claude(
                         "fragment": "N/A",
                         "explicacio": "No disponible",
                     }
+                dim_data = resposta_json[dim]
+                try:
+                    confianca_valida = 0 <= int(dim_data.get("confianca")) <= 100
+                except (TypeError, ValueError):
+                    confianca_valida = False
+                if not confianca_valida:
+                    dim_data["confianca"] = None
+                    dims_sense_confianca.append(dim)
+            if verbose and dims_sense_confianca:
+                print(
+                    f"⚠️  Claude no ha donat confiança vàlida per: {', '.join(dims_sense_confianca)}"
+                )
+        if dims_sense_confianca:
+            resposta_json["confianca_incompleta"] = dims_sense_confianca
 
         # ===== NUEVO: garantizar ideologia i reescriptura_neutral pase lo que pase =====
         if "ideologia" not in resposta_json:
