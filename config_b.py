@@ -200,30 +200,29 @@ TEXT A ANALITZAR:
 
 ---
 
+Per a cada dimensió, indica també la teva CONFIANÇA (0-100) en la classificació:
+com de segur estàs de la intensitat assignada segons l'evidència textual.
+
 RESPOSTA (NOMÉS JSON, sense preambles):
 {{
   "biaix": {{
     "intensitat": "nul·la|lleu|moderada|alta",
+    "confianca": 0,
     "fragment": "cita literal del text",
     "explicacio": "2-3 frases explicant. Específic: quin framing? quines paraules? per què aquesta intensitat?"
   }},
   "desinformacio": {{
     "intensitat": "nul·la|lleu|moderada|alta",
+    "confianca": 0,
     "fragment": "cita literal",
     "explicacio": "2-3 frases"
   }},
   "emocional": {{
     "intensitat": "nul·la|lleu|moderada|alta",
+    "confianca": 0,
     "fragment": "cita literal",
     "explicacio": "2-3 frases"
   }},
-  "ideologia": {{
-    "puntuacio": -100,
-    "etiqueta": "esquerra|centre-esquerra|centre|centre-dreta|dreta",
-    "explicacio": "2-3 frases justificant la puntuació: quins temes, marcs o postures indiquen aquesta orientació"
-  }},
-  "reescriptura_neutral": "Versió reescrita del text, factual i sense biaix, llenguatge emocional ni desinformació"
-}}
 
 RECORDA: Ser EQUILIBRAT pero RIGORÓS. Si ves "sin rumbo" + "fuga" + "desgaste" = BIAIX ALTA (framing negatiu sistemàtic). Si ves només "drama" = BIAIX LLEU (una paraula sola).
 """

@@ -40,7 +40,7 @@ st.markdown(
     
     /* ====== TÍTOLS ====== */
     h1 {
-        color: #1f2937;
+        color: #1f2937 !important;
         font-size: 2em;
         font-weight: 600;
         margin-bottom: 0.3em;

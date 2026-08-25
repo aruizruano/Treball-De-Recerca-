@@ -304,6 +304,7 @@ def analizar_texto_claude(
         message = client.messages.create(
             model=MODEL,
             max_tokens=MAX_TOKENS,
+            temperature=0,
             messages=[{"role": "user", "content": prompt_final}],
         )
 
