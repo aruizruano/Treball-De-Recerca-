@@ -195,14 +195,6 @@ IMPORTANT:
 
 ---
 
-**REESCRIPTURA NEUTRAL**: A partir del mateix text, redacta una versió alternativa que:
-   1. Mantingui tots els fets i dades verificables originals.
-   2. Elimini el biaix ideològic, el llenguatge emocional i els indicis de desinformació detectats.
-   3. Utilitzi un to descriptiu i equilibrat, sense adjectius valoratius ni framing.
-   4. Tingui una longitud similar a l'original (no cal que sigui més llarga).
-
----
-
 TEXT A ANALITZAR:
 {text}
 
@@ -241,10 +233,6 @@ RESPOSTA (NOMÉS JSON, sense preambles):
 
 RECORDA: Ser EQUILIBRAT pero RIGORÓS. Si ves "sin rumbo" + "fuga" + "desgaste" = BIAIX ALTA (framing negatiu sistemàtic). Si ves només "drama" = BIAIX LLEU (una paraula sola).
 """
-
-PROMPTS = {
-    "v1": PROMPT_V3,  # Cambiar de V1 a V1_MEJORADO
-}
 
 # ========================
 # 5 TEXTOS EXEMPLARS PARA TESTING

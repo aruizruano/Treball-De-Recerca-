@@ -54,62 +54,57 @@ def _reparar_json_truncat(fragment: str) -> str:
     return text
 
 
-def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str, Any]:
-    """
-    Extrae JSON de forma EXTREMADAMENTE robusta.
-    Si todo falla, reconstruye la estructura desde el texto.
-    AHORA TAMBIÉN BUSCA Y EXTRAE CONFIANCA
-    """
-
-    # ========== INTENTO 1: Parseo directo ==========
+def _intent_1_parseig_directe(respuesta_raw):
+    """INTENTO 1: prova de parsejar la resposta tal qual, sense tocar-la."""
     try:
         return json.loads(respuesta_raw)
     except json.JSONDecodeError:
-        pass
+        return None
 
-    # ========== INTENTO 2: Buscar JSON entre llaves ==========
-    inicio = respuesta_raw.find("{")
-    fin = respuesta_raw.rfind("}")
 
+def _intent_2_entre_claus(respuesta_raw, inicio, fin):
+    """INTENTO 2: agafa només el tros entre la primera '{' i l'última '}'."""
     if inicio != -1 and fin != -1 and fin > inicio:
         json_extraido = respuesta_raw[inicio : fin + 1]
-
         try:
             return json.loads(json_extraido)
         except json.JSONDecodeError:
-            pass
+            return None
+    return None
 
-    # ========== INTENTO 3: Limpiar caracteres problemáticos ==========
+
+def _intent_3_netejar_caracters(respuesta_raw, inicio, fin):
+    """INTENTO 3: com el 2, però eliminant salts de línia mal col·locats
+    dins dels strings, que a vegades trenquen el JSON."""
     try:
-        # Estrategia: reemplazar saltos de línea mal colocados dentro de strings
         json_limpio = (
             respuesta_raw[inicio : fin + 1]
             if (inicio != -1 and fin != -1)
             else respuesta_raw
         )
-
-        # Reemplazar secuencias problemáticas
         json_limpio = json_limpio.replace("\n", " ").replace("\r", "")
-
-        # Intentar parsear
-        resultado = json.loads(json_limpio)
-        return resultado
+        return json.loads(json_limpio)
     except json.JSONDecodeError:
-        pass
+        return None
 
-    # ========== INTENTO 3.5: Reparar JSON truncat (resposta tallada per max_tokens) ==========
-    # Si Claude s'ha quedat sense tokens a mitja resposta (típic quan la
-    # "reescriptura_neutral" és llarga), el JSON queda obert. Aquí es talla
-    # al darrer camp complet i es tanquen les claus/claudàtors pendents.
+
+def _intent_3_5_reparar_truncat(respuesta_raw, inicio):
+    """INTENTO 3.5: repara un JSON tallat a mitja resposta perquè s'ha
+    arribat al límit de max_tokens (típicament a mitja "reescriptura_neutral",
+    que és el camp més llarg). Tanca les claus/claudàtors que hagin quedat
+    obertes en lloc de descartar tota la resposta."""
     try:
         base = respuesta_raw[inicio:] if inicio != -1 else respuesta_raw
         reparat = _reparar_json_truncat(base)
-        resultado = json.loads(reparat)
-        return resultado
+        return json.loads(reparat)
     except Exception:
-        pass
+        return None
 
-    # ========== INTENTO 4: Buscar "intensitat" en el texto y reconstruir ==========
+
+def _intent_4_reconstruir_per_camps(respuesta_raw):
+    """INTENTO 4: si res de l'anterior ha funcionat, busca amb expressions
+    regulars la intensitat, la confiança, el fragment i l'explicació de
+    cada dimensió per separat, i reconstrueix l'estructura JSON a mà."""
     try:
         resultado = {}
 
@@ -118,7 +113,6 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
 
             # Buscar qué intensidad aparece después del nombre de la dimensión
             for intensidad_valida in INTENSITATS_VALIDES:
-                # Patrón: cualquier mención de la intensidad para esta dimensión
                 patron = rf'"{dimension}".*?({"|".join(INTENSITATS_VALIDES)})'
                 match = re.search(patron, respuesta_raw, re.IGNORECASE | re.DOTALL)
 
@@ -135,7 +129,7 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
 
             intensitat = intensitat_encontrada if intensitat_encontrada else "moderada"
 
-            # ===== NUEVO: Buscar confianca (número entre 0-100) =====
+            # Buscar confianca (número entre 0-100)
             confianca_match = re.search(
                 rf'"{dimension}"[^}}]*?"confianca"\s*:\s*(\d+)',
                 respuesta_raw,
@@ -169,11 +163,9 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
                 "explicacio": explicacio.strip(),
             }
 
-            # ===== NUEVO: Añadir confianca si se encontró =====
             if confianca is not None:
                 resultado[dimension]["confianca"] = confianca
 
-        # ===== NUEVO: valores por defecto de ideologia i reescriptura_neutral =====
         resultado["ideologia"] = {
             "puntuacio": 0,
             "etiqueta": "centre",
@@ -183,15 +175,17 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
 
         return resultado
     except Exception:
-        pass
+        return None
 
-    # ========== INTENTO 5: Última opción - análisis superficial ==========
+
+def _intent_5_analisi_superficial(respuesta_raw):
+    """INTENTO 5: última opció abans de rendir-se. Només mira si alguna
+    intensitat vàlida ("nul·la", "lleu"...) apareix en algun lloc del text
+    i l'assigna a totes les dimensions per igual."""
     try:
-        # Solo buscar intensidades mencionadas
         resultado = {}
 
         for dimension in DIMENSIONS:
-            # Buscar cualquier intensidad válida en el texto
             intensitat = "moderada"  # default
 
             for intens in INTENSITATS_VALIDES:
@@ -213,7 +207,6 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
                 ),
             }
 
-        # ===== NUEVO: valores por defecto de ideologia i reescriptura_neutral =====
         resultado["ideologia"] = {
             "puntuacio": 0,
             "etiqueta": "centre",
@@ -223,9 +216,12 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
 
         return resultado
     except Exception:
-        pass
+        return None
 
-    # ========== FALLBACK FINAL ==========
+
+def _resposta_per_defecte():
+    """FALLBACK FINAL: si els 5 intents han fallat, retorna una estructura
+    fixa que deixa clar que no s'ha pogut interpretar la resposta de Claude."""
     return {
         "biaix": {
             "intensitat": "moderada",
@@ -249,6 +245,44 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
         },
         "reescriptura_neutral": "",
     }
+
+
+def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str, Any]:
+    """
+    Extrae JSON de forma EXTREMADAMENTE robusta.
+    Prova 5 estratègies EN ORDRE, de la més estricta (parseig directe) a
+    la més permissiva (analisi superficial). En quant una funciona, es
+    retorna el resultat; si totes fallen, es torna una estructura fixa
+    d'error (_resposta_per_defecte). AHORA TAMBIÉN BUSCA Y EXTRAE CONFIANCA.
+    """
+    resultado = _intent_1_parseig_directe(respuesta_raw)
+    if resultado is not None:
+        return resultado
+
+    inicio = respuesta_raw.find("{")
+    fin = respuesta_raw.rfind("}")
+
+    resultado = _intent_2_entre_claus(respuesta_raw, inicio, fin)
+    if resultado is not None:
+        return resultado
+
+    resultado = _intent_3_netejar_caracters(respuesta_raw, inicio, fin)
+    if resultado is not None:
+        return resultado
+
+    resultado = _intent_3_5_reparar_truncat(respuesta_raw, inicio)
+    if resultado is not None:
+        return resultado
+
+    resultado = _intent_4_reconstruir_per_camps(respuesta_raw)
+    if resultado is not None:
+        return resultado
+
+    resultado = _intent_5_analisi_superficial(respuesta_raw)
+    if resultado is not None:
+        return resultado
+
+    return _resposta_per_defecte()
 
 
 def validar_resposta_json(resposta_json: dict) -> bool:

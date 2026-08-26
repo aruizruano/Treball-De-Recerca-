@@ -4,6 +4,8 @@
 import re
 from collections import Counter
 
+from utils_deteccio import quitar_citas
+
 # 1. Palabras con carga emocional.
 PALABRAS_EMOCIONALES = [
     "alarmante",
@@ -93,15 +95,6 @@ FRASES_URGENCIA = [
     "no hay marcha atrás",
     "pan de cada día",
 ]
-
-
-def quitar_citas(texto):
-    """Analiza la voz del autor. Si el texto es casi todo cita, es un discurso: va entero."""
-    patron = r'[«"“](.*?)[»"”]'
-    citas = re.findall(patron, texto, re.S)
-    if sum(len(c) for c in citas) > len(texto) * 0.5:
-        return texto
-    return re.sub(patron, " ", texto, flags=re.S)
 
 
 def detectar_repeticiones(texto_min):
