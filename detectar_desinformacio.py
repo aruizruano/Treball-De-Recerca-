@@ -5,8 +5,6 @@
 # cierto o falso. Por eso este detector NUNCA afirma que algo sea falso:
 # solo señala indicios y recomienda comprobarlo.
 
-import re
-
 # Señales de que el texto SÍ atribuye lo que dice a alguien o a algún sitio.
 PALABRAS_FUENTE = [
     "según",

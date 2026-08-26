@@ -106,7 +106,7 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
         reparat = _reparar_json_truncat(base)
         resultado = json.loads(reparat)
         return resultado
-    except (json.JSONDecodeError, Exception):
+    except Exception:
         pass
 
     # ========== INTENTO 4: Buscar "intensitat" en el texto y reconstruir ==========
@@ -182,7 +182,7 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
         resultado["reescriptura_neutral"] = ""
 
         return resultado
-    except Exception as e:
+    except Exception:
         pass
 
     # ========== INTENTO 5: Última opción - análisis superficial ==========
@@ -222,7 +222,7 @@ def extraer_json_robusto(respuesta_raw: str, verbose: bool = False) -> Dict[str,
         resultado["reescriptura_neutral"] = ""
 
         return resultado
-    except:
+    except Exception:
         pass
 
     # ========== FALLBACK FINAL ==========
@@ -274,7 +274,7 @@ def validar_resposta_json(resposta_json: dict) -> bool:
             if confianca_val < 0 or confianca_val > 100:
                 return False
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -373,36 +373,6 @@ def analizar_texto_claude(
         return {"success": False, "error": f"Error en análisis: {str(e)[:100]}"}
 
 
-def test_5_textos():
-    """Test con los 5 textos exemplares."""
-    from config_b import TEXTOS_TEST
-
-    print("=" * 70)
-    print("TEST - 5 TEXTOS EXEMPLARES (VERSIÓN MEJORADA CON CONFIANCA)")
-    print("=" * 70)
-
-    for key, info in TEXTOS_TEST.items():
-        print(f"\n📝 {key} (Id: {info['id']})")
-
-        resultado = analizar_texto_claude(info["text"], verbose=True)
-
-        if resultado["success"]:
-            data = resultado["data"]
-            for dim in DIMENSIONS:
-                confianca_text = ""
-                if "confianca" in data[dim]:
-                    confianca_text = f" ({data[dim]['confianca']}%)"
-                print(f"   • {dim}: {data[dim]['intensitat']}{confianca_text}")
-        else:
-            print(f"   ❌ ERROR: {resultado['error']}")
-
-        time.sleep(1)
-
-
-if __name__ == "__main__":
-    print("✅ detector_claude.py MEJORADO cargado y listo")
-
-
 def generar_titol(texto: str) -> str:
     """
     Genera un títol curt (màx. 6 paraules) en català a partir del text.
@@ -432,3 +402,33 @@ def generar_titol(texto: str) -> str:
         return titol if titol else "informe"
     except Exception:
         return "informe"
+
+
+def test_5_textos():
+    """Test con los 5 textos exemplares."""
+    from config_b import TEXTOS_TEST
+
+    print("=" * 70)
+    print("TEST - 5 TEXTOS EXEMPLARES (VERSIÓN MEJORADA CON CONFIANCA)")
+    print("=" * 70)
+
+    for key, info in TEXTOS_TEST.items():
+        print(f"\n📝 {key} (Id: {info['id']})")
+
+        resultado = analizar_texto_claude(info["text"], verbose=True)
+
+        if resultado["success"]:
+            data = resultado["data"]
+            for dim in DIMENSIONS:
+                confianca_text = ""
+                if "confianca" in data[dim]:
+                    confianca_text = f" ({data[dim]['confianca']}%)"
+                print(f"   • {dim}: {data[dim]['intensitat']}{confianca_text}")
+        else:
+            print(f"   ❌ ERROR: {resultado['error']}")
+
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    print("✅ detector_claude.py MEJORADO cargado y listo")

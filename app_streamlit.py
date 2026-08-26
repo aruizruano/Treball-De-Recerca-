@@ -9,7 +9,6 @@ import pandas as pd
 import re
 import os
 import sys
-from pathlib import Path
 
 # ============================================================================
 # CONFIGURACIÓ DE PÀGINA
@@ -276,95 +275,56 @@ def get_color_intensitat(intensitat):
     return colores.get(intensitat, "#6b7280")
 
 
+def formatar_confianca(valor):
+    """Retorna l'HTML del % de confiança, o cadena buida si no es pot llegir."""
+    try:
+        if valor is None:
+            return ""
+        return f'<div style="font-size: 0.85em; color: #7f8c8d; margin-top: 0.5em;">({int(valor)}% confiança)</div>'
+    except (ValueError, TypeError):
+        return ""
+
+
+def _puntuacio_ideologia_segura(ideologia):
+    """Converteix la puntuació ideològica a float i l'acota entre -100 i 100."""
+    try:
+        puntuacio = float(ideologia.get("puntuacio", 0))
+    except (ValueError, TypeError):
+        puntuacio = 0
+    return max(-100, min(100, puntuacio))
+
+
 def mostrar_targes_resultats(data, titulo="Resultats"):
     """Muestra las 3 tarjetas de resultados"""
     st.subheader(titulo)
 
-    col1, col2, col3 = st.columns(3)
+    dimensions_targes = [
+        ("biaix", "Biaix Ideològic"),
+        ("desinformacio", "Desinformació"),
+        ("emocional", "Llenguatge Emocional"),
+    ]
 
-    with col1:
-        biaix_data = data.get("biaix", {})
-        biaix_int = biaix_data.get("intensitat", "nul·la")
-        color = get_color_intensitat(biaix_int)
+    columnes = st.columns(3)
 
-        # Intentar obtener confianza, con manejo de errores
-        try:
-            biaix_conf = biaix_data.get("confianca")
-            if biaix_conf is not None:
-                confianza_text = f'<div style="font-size: 0.85em; color: #7f8c8d; margin-top: 0.5em;">({int(biaix_conf)}% confiança)</div>'
-            else:
-                confianza_text = ""
-        except (ValueError, TypeError):
-            confianza_text = ""
+    for columna, (dim_key, etiqueta) in zip(columnes, dimensions_targes):
+        with columna:
+            dim_data = data.get(dim_key, {})
+            intensitat = dim_data.get("intensitat", "nul·la")
+            color = get_color_intensitat(intensitat)
+            confianca_text = formatar_confianca(dim_data.get("confianca"))
 
-        st.markdown(
-            f"""
-        <div class="result-card" style="border-left-color: {color}">
-            <div class="result-header">Biaix Ideològic</div>
-            <div class="result-value" style="color: {color}">
-                {formatear_intensitat(biaix_int)}
+            st.markdown(
+                f"""
+            <div class="result-card" style="border-left-color: {color}">
+                <div class="result-header">{etiqueta}</div>
+                <div class="result-value" style="color: {color}">
+                    {formatear_intensitat(intensitat)}
+                </div>
+                {confianca_text}
             </div>
-            {confianza_text}
-        </div>
-        """,
-            unsafe_allow_html=True,
-        )
-
-    with col2:
-        desinf_data = data.get("desinformacio", {})
-        desinf_int = desinf_data.get("intensitat", "nul·la")
-        color = get_color_intensitat(desinf_int)
-
-        # Intentar obtener confianza, con manejo de errores
-        try:
-            desinf_conf = desinf_data.get("confianca")
-            if desinf_conf is not None:
-                confianza_text = f'<div style="font-size: 0.85em; color: #7f8c8d; margin-top: 0.5em;">({int(desinf_conf)}% confiança)</div>'
-            else:
-                confianza_text = ""
-        except (ValueError, TypeError):
-            confianza_text = ""
-
-        st.markdown(
-            f"""
-        <div class="result-card" style="border-left-color: {color}">
-            <div class="result-header">Desinformació</div>
-            <div class="result-value" style="color: {color}">
-                {formatear_intensitat(desinf_int)}
-            </div>
-            {confianza_text}
-        </div>
-        """,
-            unsafe_allow_html=True,
-        )
-
-    with col3:
-        emoc_data = data.get("emocional", {})
-        emoc_int = emoc_data.get("intensitat", "nul·la")
-        color = get_color_intensitat(emoc_int)
-
-        # Intentar obtener confianza, con manejo de errores
-        try:
-            emoc_conf = emoc_data.get("confianca")
-            if emoc_conf is not None:
-                confianza_text = f'<div style="font-size: 0.85em; color: #7f8c8d; margin-top: 0.5em;">({int(emoc_conf)}% confiança)</div>'
-            else:
-                confianza_text = ""
-        except (ValueError, TypeError):
-            confianza_text = ""
-
-        st.markdown(
-            f"""
-        <div class="result-card" style="border-left-color: {color}">
-            <div class="result-header">Llenguatge Emocional</div>
-            <div class="result-value" style="color: {color}">
-                {formatear_intensitat(emoc_int)}
-            </div>
-            {confianza_text}
-        </div>
-        """,
-            unsafe_allow_html=True,
-        )
+            """,
+                unsafe_allow_html=True,
+            )
 
 
 def mostrar_detalles(data, titulo="Detalls"):
@@ -409,12 +369,7 @@ def get_color_ideologia(puntuacio):
 def mostrar_barra_ideologia(data, titulo="Orientació ideològica detectada"):
     """Mostra una barra horitzontal esquerra-dreta amb un marcador de posició"""
     ideologia = data.get("ideologia", {})
-
-    try:
-        puntuacio = float(ideologia.get("puntuacio", 0))
-    except (ValueError, TypeError):
-        puntuacio = 0
-    puntuacio = max(-100, min(100, puntuacio))
+    puntuacio = _puntuacio_ideologia_segura(ideologia)
 
     etiqueta = ideologia.get("etiqueta", "centre")
     explicacio = ideologia.get("explicacio", "")
@@ -465,15 +420,8 @@ def mostrar_barra_ideologia_comparativa(
     ideologia1 = data1.get("ideologia", {})
     ideologia2 = data2.get("ideologia", {})
 
-    def _puntuacio(ideologia):
-        try:
-            p = float(ideologia.get("puntuacio", 0))
-        except (ValueError, TypeError):
-            p = 0
-        return max(-100, min(100, p))
-
-    punt1 = _puntuacio(ideologia1)
-    punt2 = _puntuacio(ideologia2)
+    punt1 = _puntuacio_ideologia_segura(ideologia1)
+    punt2 = _puntuacio_ideologia_segura(ideologia2)
     pos1 = (punt1 + 100) / 2
     pos2 = (punt2 + 100) / 2
     etiqueta1 = ideologia1.get("etiqueta", "centre").replace("-", " ")
@@ -898,56 +846,28 @@ with tab2:
         # ===== DIFERENCIES CLAU =====
         st.subheader("Diferencies clau")
 
-        # Biaix
-        biaix1 = st.session_state.resultado_1.get("biaix", {}).get(
-            "intensitat", "nul·la"
-        )
-        biaix2 = st.session_state.resultado_2.get("biaix", {}).get(
-            "intensitat", "nul·la"
-        )
+        dimensions_diferencies = [
+            ("biaix", "Biaix"),
+            ("desinformacio", "Desinformació"),
+            ("emocional", "Llenguatge emocional"),
+        ]
 
-        if biaix1 != biaix2:
-            st.info(
-                f"Biaix: Notícia 1 = **{formatear_intensitat(biaix1)}** | Notícia 2 = **{formatear_intensitat(biaix2)}**"
+        for dim_key, etiqueta in dimensions_diferencies:
+            valor1 = st.session_state.resultado_1.get(dim_key, {}).get(
+                "intensitat", "nul·la"
             )
-        else:
-            st.success(
-                f"Biaix: Ambdós texts mostren mateixa intensitat (**{formatear_intensitat(biaix1)}**)"
+            valor2 = st.session_state.resultado_2.get(dim_key, {}).get(
+                "intensitat", "nul·la"
             )
 
-        # Desinformació
-        desinf1 = st.session_state.resultado_1.get("desinformacio", {}).get(
-            "intensitat", "nul·la"
-        )
-        desinf2 = st.session_state.resultado_2.get("desinformacio", {}).get(
-            "intensitat", "nul·la"
-        )
-
-        if desinf1 != desinf2:
-            st.info(
-                f"Desinformació: Notícia 1 = **{formatear_intensitat(desinf1)}** | Notícia 2 = **{formatear_intensitat(desinf2)}**"
-            )
-        else:
-            st.success(
-                f"Desinformació: Ambdós texts mostren mateixa intensitat (**{formatear_intensitat(desinf1)}**)"
-            )
-
-        # Emocional
-        emoc1 = st.session_state.resultado_1.get("emocional", {}).get(
-            "intensitat", "nul·la"
-        )
-        emoc2 = st.session_state.resultado_2.get("emocional", {}).get(
-            "intensitat", "nul·la"
-        )
-
-        if emoc1 != emoc2:
-            st.info(
-                f"Llenguatge emocional: Notícia 1 = **{formatear_intensitat(emoc1)}** | Notícia 2 = **{formatear_intensitat(emoc2)}**"
-            )
-        else:
-            st.success(
-                f"Llenguatge emocional: Ambdós texts mostren mateixa intensitat (**{formatear_intensitat(emoc1)}**)"
-            )
+            if valor1 != valor2:
+                st.info(
+                    f"{etiqueta}: Notícia 1 = **{formatear_intensitat(valor1)}** | Notícia 2 = **{formatear_intensitat(valor2)}**"
+                )
+            else:
+                st.success(
+                    f"{etiqueta}: Ambdós texts mostren mateixa intensitat (**{formatear_intensitat(valor1)}**)"
+                )
 
         st.divider()
 

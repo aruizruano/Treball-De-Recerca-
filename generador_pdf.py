@@ -118,6 +118,34 @@ def paragraf(pdf, font, altura, contingut):
     pdf.multi_cell(0, altura, net(contingut, font), new_x="LMARGIN", new_y="NEXT")
 
 
+def escriure_peu(pdf, font):
+    """Escriu el peu de pàgina (nota legal + crèdits) al final de l'informe."""
+    pdf.ln(4)
+    pdf.set_draw_color(229, 231, 235)
+    pdf.set_line_width(0.3)
+    y = pdf.get_y()
+    pdf.line(10, y, 200, y)
+    pdf.ln(3)
+
+    pdf.set_font(font, "", 8)
+    pdf.set_text_color(*GRIS)
+    paragraf(
+        pdf,
+        font,
+        4,
+        "Aquest informe ha estat generat automàticament. El sistema és una eina "
+        "per detectar patrons, no la veritat absoluta. És recomanable contrastar "
+        "la informació amb múltiples fonts.",
+    )
+    paragraf(
+        pdf,
+        font,
+        4,
+        "Treball de Recerca 2026 - Arantxa Ruiz-Ruano Pedreira - "
+        "Institut Vall d'Arús",
+    )
+
+
 def crear_grafic_intensitats(data):
     """
     Crea un gràfic de barres horitzontals amb la intensitat de cada
@@ -496,30 +524,7 @@ def generar_pdf_comparatiu(data1, data2, titol1="", titol2=""):
     bloc_noticia("Notícia 2", data2, titol2)
 
     # ================= PEU =================
-    pdf.ln(4)
-    pdf.set_draw_color(229, 231, 235)
-    pdf.set_line_width(0.3)
-    y = pdf.get_y()
-    pdf.line(10, y, 200, y)
-    pdf.ln(3)
-
-    pdf.set_font(font, "", 8)
-    pdf.set_text_color(*GRIS)
-    paragraf(
-        pdf,
-        font,
-        4,
-        "Aquest informe ha estat generat automàticament. El sistema és una eina "
-        "per detectar patrons, no la veritat absoluta. És recomanable contrastar "
-        "la informació amb múltiples fonts.",
-    )
-    paragraf(
-        pdf,
-        font,
-        4,
-        "Treball de Recerca 2026 - Arantxa Ruiz-Ruano Pedreira - "
-        "Institut Vall d'Arús",
-    )
+    escriure_peu(pdf, font)
 
     return bytes(pdf.output())
 
@@ -680,29 +685,6 @@ def generar_pdf(data, text_analitzat="", titol=""):
         pdf.ln(4)
 
     # ================= PEU =================
-    pdf.ln(4)
-    pdf.set_draw_color(229, 231, 235)
-    pdf.set_line_width(0.3)
-    y = pdf.get_y()
-    pdf.line(10, y, 200, y)
-    pdf.ln(3)
-
-    pdf.set_font(font, "", 8)
-    pdf.set_text_color(*GRIS)
-    paragraf(
-        pdf,
-        font,
-        4,
-        "Aquest informe ha estat generat automàticament. El sistema és una eina "
-        "per detectar patrons, no la veritat absoluta. És recomanable contrastar "
-        "la informació amb múltiples fonts.",
-    )
-    paragraf(
-        pdf,
-        font,
-        4,
-        "Treball de Recerca 2026 - Arantxa Ruiz-Ruano Pedreira - "
-        "Institut Vall d'Arús",
-    )
+    escriure_peu(pdf, font)
 
     return bytes(pdf.output())
